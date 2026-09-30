@@ -117,6 +117,8 @@ func New(cfg provider.Config) (provider.Provider, error) {
 	maxOutputTokens, _ := cfg.Extra["max_output_tokens"].(int)
 	deepseekV4Model := strings.EqualFold(strings.TrimSpace(cfg.Model), "deepseek-v4-flash") ||
 		strings.EqualFold(strings.TrimSpace(cfg.Model), "deepseek-v4-pro") ||
+		strings.EqualFold(strings.TrimSpace(cfg.Model), provider.OfficialDeepSeekV41FlashModel) ||
+		strings.EqualFold(strings.TrimSpace(cfg.Model), "deepseek-flash") ||
 		IsOfficialDeepSeekVisionModel(cfg.Model)
 	minimax := protocol == "" && IsMiniMax(cfg.BaseURL)
 	zhipu := protocol == "glm" || (protocol == "" && IsZhipu(cfg.BaseURL))
@@ -158,7 +160,7 @@ func New(cfg provider.Config) (provider.Provider, error) {
 			switch effort {
 			case "low":
 				if !deepseekV4Model {
-					return nil, fmt.Errorf("openai: provider %q uses DeepSeek thinking; effort low requires deepseek-v4-flash, deepseek-v4-pro, deepseek-v4-flash-vision-exp, or explicit supported_efforts", name)
+					return nil, fmt.Errorf("openai: provider %q uses DeepSeek thinking; effort low requires deepseek-v4-flash, deepseek-v4.1-flash, deepseek-flash, deepseek-v4-pro, deepseek-v4-flash-vision-exp, or explicit supported_efforts", name)
 				}
 			case "high", "max":
 			default:

@@ -112,12 +112,18 @@ func (m *chatTUI) switchToProvider(name string) {
 	selected := 0
 	for _, model := range models {
 		ref := entry.Name + "/" + model
+		label := model
+		description := entry.Name
+		if title := deepSeekTerminalModelTitle(model); title != "" {
+			label = title
+			description = ref + " · served as deepseek-flash"
+		}
 		status := ""
 		if ref == m.modelRef {
 			status = "active"
 			selected = len(items)
 		}
-		items = append(items, quickPickerItem{ID: ref, Label: model, Description: entry.Name, Status: status})
+		items = append(items, quickPickerItem{ID: ref, Label: label, Description: description, Status: status})
 	}
 	m.quickPick = &quickPicker{
 		kind: quickPickerProviderModel, title: fmt.Sprintf(i18n.M.ProviderPickLabel, name),

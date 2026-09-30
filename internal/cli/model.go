@@ -114,17 +114,13 @@ func (m *chatTUI) openModelPicker() {
 	items := make([]quickPickerItem, 0, len(refs))
 	selected := 0
 	for _, ref := range refs {
-		parts := strings.SplitN(ref, "/", 2)
-		description := ""
-		if len(parts) == 2 {
-			description = "Provider: " + parts[0]
-		}
+		label, description := terminalModelOption(ref)
 		status := ""
 		if ref == m.modelRef {
 			status = "active"
 			selected = len(items)
 		}
-		items = append(items, quickPickerItem{ID: ref, Label: ref, Description: description, Status: status})
+		items = append(items, quickPickerItem{ID: ref, Label: label, Description: description, Status: status})
 	}
 	m.quickPick = &quickPicker{kind: quickPickerModel, title: "Select model", items: items, selected: selected}
 }
@@ -156,6 +152,38 @@ func (m *chatTUI) persistModel(ref string) {
 		return
 	}
 	m.notice(fmt.Sprintf("model: persisted (ref=%s, path=%s)", ref, path))
+}
+
+// terminalModelOption is the /model row for a provider/model ref. The selector
+// deepseek-v4.1-flash is shown as DeepSeek-V4.1-Flash; the request still uses
+// that ref and the official API serves it as deepseek-flash.
+func terminalModelOption(ref string) (label, description string) {
+	parts := strings.SplitN(ref, "/", 2)
+	if len(parts) != 2 {
+		return ref, ""
+	}
+	description = "Provider: " + parts[0]
+	if title := deepSeekTerminalModelTitle(parts[1]); title != "" {
+		return title, ref + " · served as deepseek-flash"
+	}
+	return ref, description
+}
+
+// deepSeekTerminalModelTitle returns the terminal name for the V4.1 selector.
+func deepSeekTerminalModelTitle(model string) string {
+	if strings.TrimSpace(model) == "deepseek-v4.1-flash" {
+		return "DeepSeek-V4.1-Flash"
+	}
+	return ""
+}
+
+// terminalModelLabel rewrites a controller label when it is the V4.1 selector.
+// Compound labels such as "model + planner other" stay unchanged.
+func terminalModelLabel(model string) string {
+	if title := deepSeekTerminalModelTitle(model); title != "" {
+		return title
+	}
+	return model
 }
 
 // modelRefs returns the configured provider/model refs for slash completion.

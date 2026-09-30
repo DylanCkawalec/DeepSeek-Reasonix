@@ -20,7 +20,7 @@ func deepSeekV4ProPriceCNY() *provider.Pricing {
 // deepSeekV4FlashModelIDs are the ids the vendor serves at the Flash price: the
 // V4.1 name, and the retired V4 ids it still routes there.
 func deepSeekV4FlashModelIDs() []string {
-	return []string{"deepseek-flash", "deepseek-v4-flash", openai.OfficialDeepSeekVisionModel}
+	return []string{"deepseek-flash", "deepseek-v4.1-flash", "deepseek-v4-flash", openai.OfficialDeepSeekVisionModel}
 }
 
 func deepSeekV4PricesCNY() map[string]*provider.Pricing {

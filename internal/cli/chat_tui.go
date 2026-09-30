@@ -648,7 +648,7 @@ func newChatTUI(ctrl control.SessionAPI, missing string, eventCh chan event.Even
 	nextPasteID, usedPasteIDs := pasteIDStateForHistory(history)
 	return chatTUI{
 		ctrl:                     ctrl,
-		label:                    ctrl.Label(),
+		label:                    terminalModelLabel(ctrl.Label()),
 		modelRef:                 ctrl.ModelRef(),
 		missing:                  missing,
 		nativeScrollback:         nativeScrollback,

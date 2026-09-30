@@ -48,7 +48,7 @@ func (m *chatTUI) handleModelSwitch(msg modelSwitchMsg) []tea.Cmd {
 			m.takeover.AttachController(msg.ctrl)
 		}
 		m.updateWatchdogStatusProvider()
-		m.label = msg.label
+		m.label = terminalModelLabel(msg.label)
 		m.commands = msg.commands
 		m.skills = msg.skills
 		m.setHostAndInvalidateSlashCatalog(msg.host)

@@ -23,7 +23,7 @@ func ReasoningForConfig(cfg provider.Config) provider.ReasoningCapability {
 		cap = provider.ReasoningOptions("adaptive", "adaptive", "disabled")
 	case protocol == "deepseek" || (protocol == "" && IsDeepSeek(cfg.BaseURL)):
 		cap = provider.ReasoningOptions("high", "disabled", "high", "max")
-		if cfg.Model == "deepseek-v4-flash" || cfg.Model == "deepseek-v4-pro" || IsOfficialDeepSeekVisionModel(cfg.Model) {
+		if deepSeekLowEffortModel(cfg.Model) {
 			cap = provider.ReasoningOptions("high", "disabled", "low", "high", "max")
 		}
 	case protocol == "" && IsOllamaCloud(cfg.BaseURL):
@@ -45,6 +45,15 @@ func ReasoningForConfig(cfg provider.Config) provider.ReasoningCapability {
 	}
 	return cap
 }
+func deepSeekLowEffortModel(model string) bool {
+	switch model {
+	case "deepseek-v4-flash", "deepseek-v4-pro", "deepseek-flash", provider.OfficialDeepSeekV41FlashModel:
+		return true
+	default:
+		return IsOfficialDeepSeekVisionModel(model)
+	}
+}
+
 func (c *client) ReasoningCapability() provider.ReasoningCapability { return c.reasoning.Clone() }
 
 func configuredEffort(cfg provider.Config) (string, error) {

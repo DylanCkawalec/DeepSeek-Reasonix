@@ -135,6 +135,10 @@ func New(cfg provider.Config) (provider.Provider, error) {
 	if reject, _ := cfg.Extra["reject_redirects"].(bool); reject {
 		httpClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
 	}
+	wireModel := cfg.Model
+	if openai.IsExactOfficialDeepSeekHost(requestURL) || openai.IsExactOfficialDeepSeekHost(root) {
+		wireModel = provider.OfficialDeepSeekWireModel(cfg.Model)
+	}
 	return &client{
 		identityHeaders:  provider.NewClientIdentityHeaders(),
 		reasoning:        ReasoningForConfig(cfg),
@@ -145,7 +149,7 @@ func New(cfg provider.Config) (provider.Provider, error) {
 		keySource:        keySource,
 		baseURL:          root,
 		requestURL:       requestURL,
-		model:            cfg.Model,
+		model:            wireModel,
 		nativeAnthropic:  strings.EqualFold(root, defaultBaseURL),
 		deepseek:         deepSeekReplay,
 		thinking:         thinking,

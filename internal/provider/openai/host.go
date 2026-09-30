@@ -147,17 +147,31 @@ func normalizeModelID(baseURL, model string) string {
 	return model
 }
 
-// Explicit official beta alias verified against Chat Completions. Keep
+// IsExactOfficialDeepSeekHost reports the vendor API host with no userinfo,
+// query, or fragment. Subdomains and gateways stay false so a local selector
+// is never rewritten on someone else's endpoint.
+func IsExactOfficialDeepSeekHost(endpoint string) bool {
+	u, err := url.Parse(strings.TrimSpace(endpoint))
+	if err != nil {
+		return false
+	}
+	return u.Scheme == "https" && u.Host == "api.deepseek.com" &&
+		u.User == nil && u.RawQuery == "" && u.Fragment == ""
+}
+
+// Explicit official aliases verified against the DeepSeek API. Keep
 // configuration identity exact; never case-fold arbitrary IDs or gateway calls.
+// deepseek-v4.1-flash is the terminal name for V4.1 Flash and is served as
+// deepseek-flash. The mixed-case beta alias keeps its lowercase wire id.
 func deepSeekChatWireModel(endpoint, model string) string {
 	u, err := url.Parse(endpoint)
-	if err == nil && u.Scheme == "https" && u.Host == "api.deepseek.com" &&
-		u.User == nil && u.RawQuery == "" && u.Fragment == "" &&
-		(u.Path == "/chat/completions" || u.Path == "/v1/chat/completions") &&
-		model == "DeepSeek-V4.1-Flash-Expires-On-0910" {
-		return "deepseek-v4.1-flash-expires-on-0910"
+	if err != nil || !IsExactOfficialDeepSeekHost(endpoint) {
+		return model
 	}
-	return model
+	if u.Path != "/chat/completions" && u.Path != "/v1/chat/completions" {
+		return model
+	}
+	return provider.OfficialDeepSeekWireModel(model)
 }
 
 // IsMiniMax reports whether baseURL points at MiniMax's OpenAI-compatible

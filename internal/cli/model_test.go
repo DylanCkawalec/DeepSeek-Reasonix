@@ -11,6 +11,22 @@ import (
 	"reasonix/internal/provider"
 )
 
+func TestDeepSeekV41FlashIsFourthModelOption(t *testing.T) {
+	label, description := terminalModelOption("deepseek/deepseek-v4.1-flash")
+	if label != "DeepSeek-V4.1-Flash" {
+		t.Fatalf("label = %q", label)
+	}
+	if description != "deepseek/deepseek-v4.1-flash · served as deepseek-flash" {
+		t.Fatalf("description = %q", description)
+	}
+	if got := terminalModelLabel("deepseek-v4.1-flash"); got != "DeepSeek-V4.1-Flash" {
+		t.Fatalf("footer label = %q", got)
+	}
+	if got := terminalModelLabel("deepseek-v4-pro"); got != "deepseek-v4-pro" {
+		t.Fatalf("pro label changed: %q", got)
+	}
+}
+
 // TestModelRefsFromConfig verifies the /model picker enumerates configured
 // provider/model refs (built-in defaults when no reasonix.toml is present), and
 // only those whose provider API key is set.

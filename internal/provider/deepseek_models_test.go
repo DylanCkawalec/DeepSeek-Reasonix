@@ -8,6 +8,7 @@ func TestIsOfficialDeepSeekImageModel(t *testing.T) {
 		want  bool
 	}{
 		{"deepseek-flash", true},
+		{"deepseek-v4.1-flash", true},
 		{"DEEPSEEK-FLASH", true},
 		{" deepseek-flash ", true},
 		{"deepseek-v4.1-flash-expires-on-0910", true},

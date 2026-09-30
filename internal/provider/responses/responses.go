@@ -172,13 +172,17 @@ func New(cfg Config) provider.Provider {
 	} else if modelInfo.SupportsInput(provider.ModalityImage) {
 		modelInfo.InputModalities = []provider.ModelModality{provider.ModalityText}
 	}
+	wireModel := cfg.Model
+	if openai.IsExactOfficialDeepSeekHost(requestURL) || openai.IsExactOfficialDeepSeekHost(baseURL) {
+		wireModel = provider.OfficialDeepSeekWireModel(cfg.Model)
+	}
 	return &client{
 		identityHeaders: provider.NewClientIdentityHeaders(),
 		name:            cfg.Name,
 		identity:        provider.RequestIdentity{Provider: cfg.Name, DisplayName: cfg.DisplayName, Protocol: cfg.Protocol},
 		apiKey:          cfg.APIKey, keyEnv: cfg.KeyEnv, keySource: cfg.KeySource,
 		reasoning: ReasoningForConfig(provider.Config{BaseURL: cfg.BaseURL, Model: cfg.Model, Extra: cfg.Extra}),
-		baseURL:   baseURL, requestURL: requestURL, model: cfg.Model, effort: cfg.Effort,
+		baseURL:   baseURL, requestURL: requestURL, model: wireModel, effort: cfg.Effort,
 		vendor: vendor, caps: cap, mode: cfg.mode(), sessionCache: sessionCache, search: provider.SearchPolicy{NativeEnabled: cfg.WebSearch, ClientEnabled: clientWebSearch}, maxOutputTokens: maxOutputTokens,
 		vision:    vision,
 		modelInfo: modelInfo,
